@@ -1,11 +1,4 @@
----
-title: "Predicting Genetic Disorders"
-author: "Bridget Manu"
-date: "2024-02-29"
-output: 
-   pdf_document:
-     latex_engine: xelatex
----
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -15,6 +8,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r setup, include=FALSE}
 
+installed.packages("bnlearn")
+library(bnlearn)
 library(ggplot2)
 
 ```
@@ -79,6 +74,11 @@ ggplot(data = datas, mapping = aes(x = Inherited.from.father,
 
 
 
+
+```
+
+
+```{r}
 
 ```
 
