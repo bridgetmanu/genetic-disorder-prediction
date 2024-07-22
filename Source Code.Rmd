@@ -185,12 +185,13 @@ datasub[] <- lapply(datasub, function(x) {
 datasub <- na.omit(datasub)
 
 
-
 ```
 
 
 
-learn the structure using Hill-Climbing algorithm
+learn Bayesian network structure using Hill-Climbing algorithm
+Using the cpt, select variables for decision tree
+
 
 ```{r}
 
