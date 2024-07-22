@@ -1,14 +1,13 @@
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-
-```
-
 
 ```{r setup, include=FALSE}
 
 installed.packages("bnlearn")
+install.packages(c("dplyr", "tidyr"))
+library(dplyr)
+library(tidyr)
+
 library(bnlearn)
 library(ggplot2)
 
@@ -78,31 +77,45 @@ ggplot(data = datas, mapping = aes(x = Inherited.from.father,
 ```
 
 
+
+
+creating a subset of main dataframe
+
+
+
+
 ```{r}
-
-```
-
-
-```{r}
-# creating a subset of main dataframe
-
 datasub <- subset(data1, data1$Genetic.Disorder == "Mitochondrial genetic inheritance disorders" | data1$Genetic.Disorder == "Multifactorial genetic inheritance disorders" | data1$Genetic.Disorder == "Single-gene inheritance diseases")
-                        
-head(datasub)
+
 
 ```
 
-Data Cleaning for the Decision tree
+
+Preprocessing Data
+```{r}
+# find mean to replace missing numerical values
+
+datasub <- datasub %>% mutate(across(Mother.s.age, ~replace_na(., mean(., na.rm=TRUE))))
+
+datasub <- datasub %>% mutate(across(Father.s.age, ~replace_na(., mean(., na.rm=TRUE))))
+
+```
+
+
+
+
+
+Data Cleaning for the Decision tree & Bayesian Network Conditional Table
 
 MFGID - Multifactorial genetic inheritance disorders
 SGID - Single-gene inheritance diseases
 MGID - Mitochondrial genetic inheritance disorders
 
- "Disorder.Subclass", "Genes.in.mother.s.side", "Maternal.gene", "Paternal.gene", "Inherited.from.father"
+ 
 ```{r}
 not_needed <- c("Patient.Id", "Patient.First.Name", "Patient.Age",
                 "Patient.First.Name", "Family.Name", "Father.s.name",
-                "Institute.Name", "Location.of.Institute", "Parental.consent", "Place.of.birth", "Status", "Blood.cell.count..mcL.", "Heart.Rate..rates.min", "Follow.up", "Assisted.conception.IVF.ART", "White.Blood.cell.count..thousand.per.microliter.", "Mother.s.age", "Father.s.age", "No..of.previous.abortion", "Respiratory.Rate..breaths.min.", "Test.1", "Test.2", "Test.3", "Test.4", "Test.5", "Gender", "Birth.asphyxia", "Autopsy.shows.birth.defect..if.applicable.", "Folic.acid.details..peri.conceptional.", "H.O.serious.maternal.illness", "H.O.radiation.exposure..x.ray.", "H.O.substance.abuse",
+                "Institute.Name", "Location.of.Institute", "Parental.consent", "Place.of.birth", "Status", "Follow.up", "Assisted.conception.IVF.ART", "White.Blood.cell.count..thousand.per.microliter.", "Mother.s.age", "Father.s.age", "No..of.previous.abortion", "Respiratory.Rate..breaths.min.", "Gender", "Birth.asphyxia", "Autopsy.shows.birth.defect..if.applicable.", "Folic.acid.details..peri.conceptional.", "H.O.serious.maternal.illness", "H.O.radiation.exposure..x.ray.", "H.O.substance.abuse",
 "History.of.anomalies.in.previous.pregnancies", "Blood.test.result", "Birth.defects")
 
 datasub <- datasub[, !(names(datasub) %in% not_needed)]
@@ -131,6 +144,13 @@ datasub[] <- lapply(datasub, function(x) {
   if(is.character(x)) return(as.factor(x))
   return(x)
 })
+
+# convert all int variables to numerical
+datasub[] <- lapply(datasub, function(x) {
+  if(is.integer(x)) return(as.numeric(x))
+  return(x)
+})
+
 
 # replaces all empty spaces with NA
 datasub[] <- lapply(datasub, function(x) {
@@ -164,7 +184,20 @@ datasub[] <- lapply(datasub, function(x) {
 
 datasub <- na.omit(datasub)
 
-head(datasub)
+
+
+```
+
+
+
+learn the structure using Hill-Climbing algorithm
+
+```{r}
+
+bn <- hc(datasub)
+fitted <- bn.fit(bn, datasub)
+print(fitted)
+
 
 ```
 
