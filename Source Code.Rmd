@@ -259,6 +259,10 @@ prediction <- predict(tret, train1, type = "class")
 cm1 <- confusionMatrix(prediction, train$Genetic.Disorder)
 cm1
 
+# calculate balanced accuracy
+
+
+
 
 
 
